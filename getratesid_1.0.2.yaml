@@ -1,0 +1,63 @@
+---
+swagger: "2.0"
+info:
+  x-ibm-name: "getratesid"
+  title: "GetRatesID"
+  version: "1.0.2"
+schemes:
+- "https"
+host: "$(catalog.host)"
+basePath: "/scripts"
+securityDefinitions:
+  clientIdHeader:
+    type: "apiKey"
+    in: "header"
+    name: "X-IBM-Client-Id"
+security:
+- clientIdHeader: []
+x-ibm-configuration:
+  testable: true
+  enforced: true
+  cors:
+    enabled: true
+  assembly:
+    execute:
+    - shaping:
+        title: "shaping"
+        version: "1.0.2"
+    - invoke:
+        title: "invoke"
+        timeout: 60
+        verb: "GET"
+        cache-response: "protocol"
+        cache-ttl: 900
+        version: "1.0.0"
+        target-url: "http://212.40.192.49$(request.path)?date_req=$(request.parameters.date_req)"
+    catch:
+    - default:
+      - gatewayscript:
+          title: "gatewayscript"
+          version: "1.0.0"
+          source: "apim.readInputAsJSON(function (error, json) {\r\n\tif (error) {\r\
+            \n        \r\n\t} else {\r\n\t\t\r\n\t\tvar foo = session.name('policy').getVar('fw/exception');\r\
+            \n\t\tvar rspObj = JSON.stringify(foo);\r\n\t\t// Save the output\r\n\t\
+            \t\r\n\t\tsession.output.write(rspObj);\r\n\t\tapim.output('application/json');\r\
+            \n\t\t\r\n\t}\r\n});"
+  gateway: "datapower-gateway"
+  phase: "realized"
+paths:
+  /XML_daily_eng.asp:
+    get:
+      responses:
+        200:
+          description: "200 OK"
+      parameters:
+      - name: "date_req"
+        type: "string"
+        required: false
+        in: "query"
+        format: "date-time"
+definitions: {}
+tags: []
+produces:
+- "application/xml"
